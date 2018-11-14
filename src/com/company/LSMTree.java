@@ -144,11 +144,14 @@ public class LSMTree {
             if(nextLevel.isFull())
                 throw new IOException("merge failure");
         }
-
+        //System.out.println("Merge-Level :" + levelIndex);
+        //curLevel.print(levelIndex);
         for(Run run : curLevel.deque) {
+            //System.out.print(run.numOfEntries + " ");
             run.startRead();
             mergeContext.add(run.mmapRead(), run.numOfEntries);
         }
+        //System.out.println();
 
         nextLevel.deque.addFirst(new Run(nextLevel.max_run_size, BF_BITS_PER_ENTRY));
         Run nextLevelRun = nextLevel.deque.peekFirst();
@@ -159,6 +162,8 @@ public class LSMTree {
             nextLevelRun.mmap_put(key, val);
         }
         nextLevelRun.endmmapWrite();
+        System.out.println("After Merge");
+        nextLevelRun.print();
 
         for (Run run : curLevel.deque) {
             run.endRead();
@@ -196,23 +201,27 @@ public class LSMTree {
     }
 
 
-    public void get(int key) throws IOException {
+    public boolean get(int key , boolean verbose) throws IOException {
         Integer bufferVal = buffer.get(key);
         if (bufferVal != null) {
             System.out.println("key: " + key + " val: " + bufferVal);
-            return;
+            return true;
         }
 
         for(Level level : levels) {
             for (Run run : level.deque) {
-                Integer val = run.mmap_get(key);
+                Integer val = verbose ? run.mmap_get(key, true) :run.get(key);
+                if(verbose) {
+                    System.out.println("run entry size / max_size:" + run.numOfEntries + " / " + run.maxSize);
+                }
                 if (val != null) {
                     System.out.println("key: " + key + " val: " + val);
-                    return;
+                    return true;
                 }
             }
         }
         System.out.println("key " + key + " does not exist");
+        return false;
     }
 
     public void print() throws IOException {

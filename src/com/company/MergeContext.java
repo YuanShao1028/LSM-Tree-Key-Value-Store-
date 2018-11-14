@@ -38,6 +38,32 @@ public class MergeContext {
         result[1] = val;
         return result;
     }
+/*
+    int[] next() {  // int[]  size = 2  [0] key [1] val
+        int[] result = new int[2];
+        MergeEntry cur = priorityQueue.peek();
+        //MergeEntry[] mergeEntries = Arrays.sort(priorityQueue.toArray(), priorityQueue.comparator());
+        System.out.println("current head of queue is " + cur);
+        int key = cur.curKey;
+        int val = cur.curVal;
+        MergeEntry nextEntry = priorityQueue.poll();
+        if(nextEntry.next()) {
+            priorityQueue.add(nextEntry);
+        }
+
+        //MergeEntry nextMergeEntry = cur;
+        //while (!priorityQueue.isEmpty() && priorityQueue.peek().curKey == key)  {
+        //    MergeEntry nextEntry = priorityQueue.poll();
+        //    if(nextEntry.next()) {
+        //        priorityQueue.add(nextEntry);
+        //    }
+        //}
+        result[0] = key;
+        result[1] = val;
+        return result;
+    }
+    */
+
 
     boolean done() {
         return priorityQueue.isEmpty();

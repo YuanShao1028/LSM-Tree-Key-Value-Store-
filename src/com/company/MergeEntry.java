@@ -38,8 +38,22 @@ public class MergeEntry implements Comparable<MergeEntry> {
     @Override
     public int compareTo(MergeEntry o) {
         if(curKey == o.curKey)
+            return precedence > o.precedence ? 1 : (precedence == o.precedence ? 0 : -1);
+        else
+            return curKey > o.curKey ? 1 : (curKey == o.curKey ? 0 : -1);
+    }
+    /*
+    @Override
+    public int compareTo(MergeEntry o) {
+        if(curKey == o.curKey)
             return precedence - o.precedence;
         else
             return curKey - o.curKey;
+    }
+    */
+
+    @Override
+    public String toString() {
+        return "order: " + precedence + " Index: " + currentIndex + " curKey: " + curKey + " curVal: " +curVal;
     }
 }

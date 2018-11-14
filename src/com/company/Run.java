@@ -174,6 +174,29 @@ public class Run {
         return null;
     }
 
+    public Integer mmap_get(int k, boolean verbose) throws IOException {
+        if(fencePointers.isEmpty() || k < fencePointers.get(0) || !bloomFilter.get(k))
+            return null;
+        int nextPageIndex = Utils.upperBound(fencePointers, k);
+        int PageIndex = nextPageIndex - 1;
+        System.out.println("PageIndex:" + PageIndex);
+        if (PageIndex < 0) {
+            //System.out.println("page index out of bound");
+            throw new IOException("page index out of bound");
+        }
+        startRead();
+        MappedByteBuffer mappedByteBuffer = mmapRead(PageIndex * PAGE_SIZE, PAGE_SIZE);
+        for(int i = 0; i < NUM_OF_ENTRIES_PER_PAGE; ++i) {
+            int key = mappedByteBuffer.getInt();
+            int val = mappedByteBuffer.getInt();
+            System.out.println(key + " " + val);
+            if(key == k)
+                return val;
+        }
+        endRead();
+        return null;
+    }
+
     public Integer mmap_get(int k) throws IOException {
         if(fencePointers.isEmpty() || k < fencePointers.get(0) || !bloomFilter.get(k))
             return null;

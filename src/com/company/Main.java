@@ -1,11 +1,54 @@
 package com.company;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.*;
+import java.io.*;
+
+
+
 
 public class Main {
 
+    static void testWorkload(String workload, LSMTree tree)throws IOException {
+        File file = new File(workload);
+        Scanner scanner = new Scanner(file);
+        int fail = 0;
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            String[] token = line.split(" ");
+            if (token[0].equals("g")) {
+                int key = Integer.valueOf(token[1]);
+                if (!tree.get(key, false))
+                    fail++;
+                //System.out.println("GET " + key);
+            } else if (token[0].equals("p")) {
+                int key = Integer.valueOf(token[1]);
+                int val = Integer.valueOf(token[2]);
+                tree.put(key, val);
+                //System.out.println("PUT " + key + " " + val);
+            }
+        }
+        //tree.print();
+        //tree.levels.get(2).deque.peekFirst().printFencePoint();
+        System.out.println(fail);
+        //tree.clear();
+    }
+
+
     public static void main(String[] args) throws IOException {
+
+        int bufferSize = 1000 * 4096 / 8;
+        String workload = "/Users/Yuanshao/workspace/CS239/cs265-lsm-tree/generator/workload.txt";
+        LSMTree tree = new LSMTree(bufferSize, 5, 2, true);
+        testWorkload(workload, tree);
+        //tree.get(2055300197, false);
+        tree.clear();
+
+
+
+
+        /*
         int bufferSize = 100 * 4096 / 8;
         LSMTree tree = new LSMTree(4, 5, 4, true);
         //for (Level level : tree.levels) {
@@ -43,84 +86,93 @@ public class Main {
 
 
 
-        //for(int i = 0; i < 200; ++i) {
-        //    tree.get(i);
-        //}
-
         tree.clear();
 
+        */
+        /*
 
 
-
-
-        //for(int i = 0; i < 5; ++i) {
-        //    tree.get(i);
-        //}
-
-
-
-
+         */
 
         /*
-        Run run1 = new Run(128, (float) 0.5);
-        System.out.println(run1.tmpFileStr);
-        Run run2 = new Run(128, (float) 0.5);
-        System.out.println(run2.tmpFileStr);
-        Run run3 = new Run(128, (float) 0.5);
-        System.out.println(run3.tmpFileStr);
+        Run run1 = new Run(4, (float) 0.5);
+        Run run2 = new Run(4, (float) 0.5);
+        Run run3 = new Run(4, (float) 0.5);
+        Run run4 = new Run(4, (float) 0.5);
 
         run1.startmmapWrite();
-        for(int i = 0; i < 256; ++i)
-            if(i % 2 == 1)
-                run1.mmap_put(i, i + 1);
+        run1.mmap_put(-1384681616,-1296236065);
+        run1.mmap_put(1454827923,408940143);
+        run1.mmap_put(1976143595,-1598430183);
+        run1.mmap_put(2055300197,387009170);
+
         run1.endmmapWrite();
         System.out.println("file1 size : " + run1.fileSize());
 
         run2.startmmapWrite();
-        for(int i = 0; i < 256; ++i)
-            if(i % 2 == 1)
-                run2.mmap_put(i, i + 2);
+        //(-2120936234,783448592) (-2100101503,-1113306181) (194719064,1337007917) (1571909183,690668695)
+        run2.mmap_put(-2120936234,783448592);
+        run2.mmap_put(-2100101503,-1113306181);
+        run2.mmap_put(194719064,1337007917);
+        run2.mmap_put(1571909183,690668695);
         run2.endmmapWrite();
         System.out.println("file2 size : " + run2.fileSize());
 
         run3.startmmapWrite();
-        for(int i = 0; i < 256; ++i)
-            if(i % 2 == 0)
-                run3.mmap_put(i, i + 3);
+        run3.mmap_put(-1344552822,733025979);
+        run3.mmap_put(353559988,1254737873);
+        run3.mmap_put(604443636,1719671125);
+        run3.mmap_put(975463691,1854762139);
         run3.endmmapWrite();
         System.out.println("file3 size : " + run3.fileSize());
 
+        run4.startmmapWrite();
+        run4.mmap_put(-2137162676,892407903);
+        run4.mmap_put(463051032,555093390);
+        run4.mmap_put(550289315,-1944024987);
+        run4.mmap_put(1240860315,357233022);
+        run4.endmmapWrite();
+        System.out.println("file4 size : " + run3.fileSize());
+        run1.print();
+        System.out.println();
+        run2.print();
+        System.out.println();
+        run3.print();
+        System.out.println();
+        run4.print();
+        System.out.println();
 
         run1.startRead();
         run2.startRead();
         run3.startRead();
+        run4.startRead();
         MappedByteBuffer m1 = run1.mmapRead();
         MappedByteBuffer m2 = run2.mmapRead();
         MappedByteBuffer m3 = run3.mmapRead();
+        MappedByteBuffer m4 = run4.mmapRead();
         MergeContext mergeContext = new MergeContext();
         mergeContext.add(m1, run1.numOfEntries);
         mergeContext.add(m2, run2.numOfEntries);
         mergeContext.add(m3, run3.numOfEntries);
-        Run run4 = new Run(128 * 3, (float) 0.5);
-        run4.startmmapWrite();
+        mergeContext.add(m4, run4.numOfEntries);
+        Run run5 = new Run(16, (float) 0.5);
+        run5.startmmapWrite();
+
 
         while(!mergeContext.done()) {
             int[] cur = mergeContext.next();
             System.out.println(cur[0] + " " + cur[1]);
-            run4.mmap_put(cur[0], cur[1]);
+            run5.mmap_put(cur[0], cur[1]);
         }
-        run4.endmmapWrite();
-        System.out.println("num of entry :" + run4.numOfEntries);
-        run4.startRead();
-        MappedByteBuffer mappedByteBuffer = run4.mmapRead();
-        for (int i = 0; i < run4.numOfEntries; ++i) {
-            System.out.println(mappedByteBuffer.getInt() + " " + mappedByteBuffer.getInt());
-        }
-        run4.endRead();
+        run5.endmmapWrite();
+        System.out.println("num of entry :" + run5.numOfEntries);
+
+        run5.print();
 
         run1.endRead();
         run2.endRead();
         run3.endRead();
+        run4.endRead();
 
         //run.printFencePoint();
         run1.clear();
@@ -129,6 +181,8 @@ public class Main {
         run4.clear();
         //run1.printFencePoint();
         */
+
+
 
 
 
