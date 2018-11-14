@@ -162,8 +162,8 @@ public class LSMTree {
             nextLevelRun.mmap_put(key, val);
         }
         nextLevelRun.endmmapWrite();
-        System.out.println("After Merge");
-        nextLevelRun.print();
+        //System.out.println("After Merge");
+        //nextLevelRun.print();
 
         for (Run run : curLevel.deque) {
             run.endRead();
@@ -204,7 +204,7 @@ public class LSMTree {
     public boolean get(int key , boolean verbose) throws IOException {
         Integer bufferVal = buffer.get(key);
         if (bufferVal != null) {
-            System.out.println("key: " + key + " val: " + bufferVal);
+            //System.out.println("key: " + key + " val: " + bufferVal);
             return true;
         }
 
@@ -215,22 +215,28 @@ public class LSMTree {
                     System.out.println("run entry size / max_size:" + run.numOfEntries + " / " + run.maxSize);
                 }
                 if (val != null) {
-                    System.out.println("key: " + key + " val: " + val);
+                    //System.out.println("key: " + key + " val: " + val);
                     return true;
                 }
             }
         }
-        System.out.println("key " + key + " does not exist");
+        //System.out.println("key " + key + " does not exist");
         return false;
     }
 
-    public void print() throws IOException {
+    public void print(boolean verbose) throws IOException {
         System.out.println("Buffer");
-        buffer.print();
+        System.out.println("Buffer size is :" + buffer.size());
+        if (verbose)
+            buffer.print();
         System.out.println("Disk");
         for(int i = 0; i < levels.size(); ++i) {
             levels.get(i).print(i);
         }
+    }
+
+    public void print() throws IOException {
+        print(false);
     }
 
     public void clear() {

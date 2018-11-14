@@ -13,8 +13,8 @@ public class Run {
     final static String PREFIX = "lsm";
     final static String SUFFIX = ".tmp";
     final static String DIR = "/Users/Yuanshao/workspace/CS239/tmp";
-    //final static int PAGE_SIZE = 4096; // 1024 / 8 = 128 entries
-    final static int PAGE_SIZE = 32;
+    final static int PAGE_SIZE = 4096; // 4096 / 8 = 512 entries
+    //final static int PAGE_SIZE = 32;
     final static int ENTRY_SIZE = 8;
     final static int NUM_OF_ENTRIES_PER_PAGE = PAGE_SIZE / ENTRY_SIZE;
 

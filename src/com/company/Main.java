@@ -14,6 +14,7 @@ public class Main {
         File file = new File(workload);
         Scanner scanner = new Scanner(file);
         int fail = 0;
+        long start = System.currentTimeMillis();
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] token = line.split(" ");
@@ -29,20 +30,23 @@ public class Main {
                 //System.out.println("PUT " + key + " " + val);
             }
         }
+        long elapsedTimeMillis = System.currentTimeMillis() - start;
+        System.out.println("elapsedTimeMillis = " + elapsedTimeMillis);
         //tree.print();
         //tree.levels.get(2).deque.peekFirst().printFencePoint();
-        System.out.println(fail);
+        //System.out.println(fail);
         //tree.clear();
     }
 
 
     public static void main(String[] args) throws IOException {
 
-        int bufferSize = 1000 * 4096 / 8;
+        int bufferSize = 10 * 4096 / 8;
         String workload = "/Users/Yuanshao/workspace/CS239/cs265-lsm-tree/generator/workload.txt";
-        LSMTree tree = new LSMTree(bufferSize, 5, 2, true);
+        LSMTree tree = new LSMTree(bufferSize, 20, 4, true);
         testWorkload(workload, tree);
         //tree.get(2055300197, false);
+        tree.print();
         tree.clear();
 
 

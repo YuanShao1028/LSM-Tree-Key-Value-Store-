@@ -17,6 +17,9 @@ public class Buffer {
         return buffer.entrySet();
     }
 
+    public int size() {
+        return buffer.size();
+    }
 
     public Integer get(int key) {
         return buffer.get(key);

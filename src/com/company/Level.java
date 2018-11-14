@@ -1,4 +1,6 @@
 package com.company;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+
 import java.io.IOException;
 import java.util.*;
 /**
@@ -36,14 +38,19 @@ public class Level {
             run.maxSize = max_run_size;
     }
 
-    public void print(int level) throws IOException {
+    public void print(int level, boolean verbose) throws IOException {
         int count = 0;
         for(Run run : deque) {
             System.out.println("level:" + level + " run:" + count + " count:" + run.numOfEntries);
-            run.print();
+            if (verbose)
+                run.print();
             count++;
             System.out.println();
         }
+    }
+
+    public void print(int level) throws IOException {
+        print(level, false);
     }
 
     public void clear() {
