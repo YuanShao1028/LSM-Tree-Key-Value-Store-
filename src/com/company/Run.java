@@ -190,8 +190,10 @@ public class Run {
             int key = mappedByteBuffer.getInt();
             int val = mappedByteBuffer.getInt();
             System.out.println(key + " " + val);
-            if(key == k)
+            if(key == k) {
+                endRead();
                 return val;
+            }
         }
         endRead();
         return null;

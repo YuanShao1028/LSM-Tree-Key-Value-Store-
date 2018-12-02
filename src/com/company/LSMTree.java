@@ -210,7 +210,7 @@ public class LSMTree {
 
         for(Level level : levels) {
             for (Run run : level.deque) {
-                Integer val = verbose ? run.mmap_get(key, true) :run.get(key);
+                Integer val = verbose ? run.mmap_get(key, true) :run.mmap_get(key);
                 if(verbose) {
                     System.out.println("run entry size / max_size:" + run.numOfEntries + " / " + run.maxSize);
                 }
