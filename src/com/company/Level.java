@@ -49,6 +49,14 @@ public class Level {
         }
     }
 
+    public int getNumOfEntries() {
+        int sum = 0;
+        for (Run run : deque) {
+            sum += run.numOfEntries;
+        }
+        return sum;
+    }
+
     public void print(int level) throws IOException {
         print(level, false);
     }

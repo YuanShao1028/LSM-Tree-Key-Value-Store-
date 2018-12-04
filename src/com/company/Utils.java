@@ -30,5 +30,9 @@ public class Utils {
                 (b[0] & 0xFF) << 24;
     }
 
+    public static double logn(int n, int x) {
+        return Math.log(x) / Math.log(n);
+    }
+
 
 }

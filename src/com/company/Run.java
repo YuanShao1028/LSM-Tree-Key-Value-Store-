@@ -213,8 +213,10 @@ public class Run {
         for(int i = 0; i < NUM_OF_ENTRIES_PER_PAGE; ++i) {
             int key = mappedByteBuffer.getInt();
             int val = mappedByteBuffer.getInt();
-            if(key == k)
+            if(key == k) {
+                endRead();
                 return val;
+            }
         }
         endRead();
         return null;

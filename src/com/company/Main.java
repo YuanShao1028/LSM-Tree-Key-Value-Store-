@@ -10,43 +10,86 @@ import java.io.*;
 
 public class Main {
 
-    static void testWorkload(String workload, LSMTree tree)throws IOException {
+    static void testWorkload(String workload, LSMTree tree, int miniBatch)throws IOException {
+        WorkloadMonitor workloadMonitor = new WorkloadMonitor(tree, miniBatch);
+        workloadMonitor.print();
         File file = new File(workload);
         Scanner scanner = new Scanner(file);
-        int fail = 0;
         long start = System.currentTimeMillis();
+        long miniBatchStart = start;
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] token = line.split(" ");
             if (token[0].equals("g")) {
                 int key = Integer.valueOf(token[1]);
-                if (!tree.get(key, false))
-                    fail++;
-                //System.out.println("GET " + key);
+                tree.get(key, false);
+                workloadMonitor.incGet();
             } else if (token[0].equals("p")) {
                 int key = Integer.valueOf(token[1]);
                 int val = Integer.valueOf(token[2]);
                 tree.put(key, val);
+                workloadMonitor.incPut();
                 //System.out.println("PUT " + key + " " + val);
+            }
+            if (workloadMonitor.changeFanout()) {
+                long miniBatchTime = System.currentTimeMillis() - miniBatchStart;
+                System.out.println("miniBatchTimeMillis = " + miniBatchTime);
+                miniBatchStart = System.currentTimeMillis();
+                int fanout = workloadMonitor.getFanout();
+                System.out.println("new fanout : " + fanout);
+                tree.setFanOut(fanout);
+                workloadMonitor.clear();
             }
         }
         long elapsedTimeMillis = System.currentTimeMillis() - start;
         System.out.println("elapsedTimeMillis = " + elapsedTimeMillis);
-        //tree.print();
-        //tree.levels.get(2).deque.peekFirst().printFencePoint();
-        //System.out.println(fail);
-        //tree.clear();
+        workloadMonitor.print();
+    }
+
+
+    static void testWorkload1(String workload, LSMTree tree, int miniBatch)throws IOException {
+        WorkloadMonitor workloadMonitor = new WorkloadMonitor(tree, miniBatch);
+        workloadMonitor.print();
+        File file = new File(workload);
+        Scanner scanner = new Scanner(file);
+        long start = System.currentTimeMillis();
+        long miniBatchStart = start;
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            String[] token = line.split(" ");
+            if (token[0].equals("g")) {
+                int key = Integer.valueOf(token[1]);
+                tree.get(key, false);
+                workloadMonitor.incGet();
+            } else if (token[0].equals("p")) {
+                int key = Integer.valueOf(token[1]);
+                int val = Integer.valueOf(token[2]);
+                tree.put(key, val);
+                workloadMonitor.incPut();
+                //System.out.println("PUT " + key + " " + val);
+            }
+            if (workloadMonitor.changeFanout()) {
+                long miniBatchTime = System.currentTimeMillis() - miniBatchStart;
+                System.out.println("miniBatchTimeMillis = " + miniBatchTime);
+                miniBatchStart = System.currentTimeMillis();
+                workloadMonitor.clear();
+            }
+        }
+        long elapsedTimeMillis = System.currentTimeMillis() - start;
+        System.out.println("elapsedTimeMillis = " + elapsedTimeMillis);
+        workloadMonitor.print();
     }
 
 
     public static void main(String[] args) throws IOException {
 
         int bufferSize = 10 * 4096 / 8;
-        String workload = "/Users/Yuanshao/workspace/CS239/cs265-lsm-tree/generator/workload.txt";
-        LSMTree tree = new LSMTree(bufferSize, 20, 4, true);
-        testWorkload(workload, tree);
+        int miniBatch = 200000;
+        String workload = "/Users/Yuanshao/workspace/CS239/cs265-lsm-tree/generator/2.txt";
+        LSMTree tree = new LSMTree(bufferSize, 10, 4, true);
+        testWorkload1(workload, tree, miniBatch);
         //tree.get(2055300197, false);
-        tree.print();
+        //tree.print();
         tree.clear();
 
 

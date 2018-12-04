@@ -53,17 +53,19 @@ public class LSMTree {
                 }
             }
         } else {
+            //System.out.println("start");
             for (int i = 0; i < depth; ++i) {
-                System.out.println(maxRunSize * fanOut);
+                //System.out.println(maxRunSize * fanOut);
                 levels.get(i).changeRun(SINGLE_RUN, maxRunSize * fanOut);
                 maxRunSize *= fanOut;
             }
+            //System.out.println("end");
 
             if (enableMerge) {
-                System.out.println("here");
+                //System.out.println("here");
                 for (int i = 0; i < depth; ++i) {
                     if (levels.get(i).isFull()) {
-                        System.out.println("hhhh");
+                        //System.out.println("hhhh");
                         Run empty = null;
                         leveledMergeDown(empty, i);
                     }
@@ -74,6 +76,7 @@ public class LSMTree {
     }
 
     public void leveledMergeDown(Run run, int start) throws IOException {
+        //System.out.println("merge level : " + start);
         // run is constructed by entries in buffer
         // or run could be empty (null), acting as a placeholder, which is used in merging caused by changing fan_out size
         int cur = start;
@@ -91,16 +94,22 @@ public class LSMTree {
             curRun.startRead();
             mergeContext.add(curRun.mmapRead(), curRun.numOfEntries);
             sumOfEntries += curRun.numOfEntries;
-            if(sumOfEntries <= curRun.maxSize) // merge in this level
+            if(sumOfEntries <= curRun.maxSize) { // merge in this level
+                //System.out.println("break");
                 break;
+            }
             cur++;
         }
-
+        while (levels.get(cur).max_run_size < sumOfEntries) {
+            cur++;
+        }
         if(cur >= levels.size())
             throw new IOException("run out of memory");
         //System.out.println("max_run_size :" + levels.get(cur).max_run_size);
         Run nextRun = new Run(levels.get(cur).max_run_size, BF_BITS_PER_ENTRY);
         nextRun.startmmapWrite();
+        //System.out.println(nextRun.maxSize);
+        //System.out.println(sumOfEntries);
 
         while (!mergeContext.done()) {
             int[] pair = mergeContext.next();
@@ -237,6 +246,13 @@ public class LSMTree {
 
     public void print() throws IOException {
         print(false);
+    }
+
+    public int getNumOfEntries() {
+        int sum = 0;
+        for (Level level : levels)
+            sum += level.getNumOfEntries();
+        return sum;
     }
 
     public void clear() {
